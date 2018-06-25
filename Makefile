@@ -1,0 +1,24 @@
+TOPDIR=$(shell pwd)
+CC=g++
+LDFLAGS=-L. -Wl,-rpath-link=$(TOPDIR)
+CXXFLAGS=-std=gnu++11 -Wall -Wextra -O2 -I$(TOPDIR)/SamLib
+LIBRARY_SOURCES=$(TOPDIR)/SamLib/samlib.cpp
+CLIENT_SOURCES=$(TOPDIR)/SamClient/main.cpp 
+LIBRARY_OBJECTS=$(LIBRARY_SOURCES:.cpp=.o)
+CLIENT_OBJECTS=$(CLIENT_SOURCES:.cpp=.o) 
+LIBRARY=libsam.so
+CLIENT_EXECUTABLE=client
+
+.phony: all
+all: $(LIBRARY)  $(CLIENT_EXECUTABLE)
+
+$(LIBRARY): $(LIBRARY_OBJECTS)
+	$(CC) -shared -fPIC -o $(LIBRARY) $(LIBRARY_SOURCES) -lcurl -L$(TOPDIR) $(CXXFLAGS) 
+
+$(CLIENT_EXECUTABLE): $(CLIENT_OBJECTS)
+	$(CC) -o $@ $(CLIENT_SOURCES) -L$(TOPDIR) -lsam -Wl,-rpath=$(TOPDIR) $(CXXFLAGS)
+
+.phony: clean
+clean:
+	rm -f $(LIBRARY_OBJECTS) $(CLIENT_OBJECTS) $(CLIENT_EXECUTABLE) $(LIBRARY)
+
